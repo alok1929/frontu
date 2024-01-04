@@ -9,6 +9,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [collectionData, setCollectionData] = useState([]);
+  const [showGrid, setShowGrid] = useState(false);
+
 
   useEffect(() => {
     // Fetch regions on component mount
@@ -50,6 +52,7 @@ function App() {
       else if (!selectedRegion && selectedTechnology) {
         endpoint = `http://localhost:3000/getDocumentsbytech/${selectedTechnology}`;
       }
+      setShowGrid(true);
       const response = await axios.get(endpoint);
       const responsu = response.data.documents;
       console.log("this is being set in collection data", responsu);
@@ -62,57 +65,85 @@ function App() {
 
   return (
     <div>
-      <h1>Firestore Data Fetcher</h1>
-      <div>
-        <label>
-          Region:
-          <select value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}>
-            <option value="">Select Region</option>
-            {regions.map(region => <option key={region} value={region}>{region}</option>)}
-          </select>
-        </label>
+      <div className='flex flex-col justify-center items-center p-6 font-medium text-2xl bg-slate-200 px-12'>
+        Contracts & Warranties
       </div>
-      <div>
-        <div>
-          <label>
-            Technology:
-            <select value={selectedTechnology} onChange={(e) => setSelectedTechnology(e.target.value)}>
-              <option value="">Select Technology</option>
-              {technologies.map(tech => <option key={tech} value={tech}>{tech}</option>)}
-            </select>
-          </label>
+      <div className='flex justify-center items-center py-10 space-x-20 bg-slate-200'>
+        <label htmlFor='regions' className=''></label>
+        <select
+          id='regions'
+          value={selectedRegion}
+          className='rounded-lg p-3'
+          onChange={(e) => setSelectedRegion(e.target.value)}
+
+        >
+          <option value="">Select Region</option>
+          {regions.map(region =>
+            <option key={region} value={region}>{region}
+            </option>)}
+        </select>
+
+        <label htmlFor='technologies'></label>
+        <select
+          id='technologies'
+          className='rounded-lg p-3'
+          value={selectedTechnology}
+          onChange={(e) => setSelectedTechnology(e.target.value)}
+        >
+          <option value="">Select Technology</option>
+          {technologies.map(tech => <option key={tech} value={tech}>{tech}
+          </option>)}
+        </select>
+
+
+
+        <div className='px-5'>
+          <button
+            className='text-white
+           bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-6 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+            onClick={fetchData}
+          >
+            Search
+          </button>
         </div>
+
+
       </div>
-      <div>
-        <button onClick={fetchData}>Search</button>
-      </div>
-      <h2>Data :</h2>
-
-
-      <ul>
-        {collectionData.map((item, index) => (
-          <li key={index}>
-            <strong>Region:</strong> {item.region}
-            <br></br>
-            <strong>Plant:</strong> {item.plant}
-            <br></br>
-            <strong>Technology:</strong> {item.technology}
-
-            <ul>
-              {Object.entries(item)
-                .filter(([key, value]) => key !== 'region' && key!=='plant' && key!=='technology')
-                .map(([key, value]) => (
-                  <li key={key}>
-                    <strong>{key}:</strong> {value}
-                  </li>
-                ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div className="">
+            {collectionData.map((item, index) => (
+              <div key={index} className="grid grid-cols-4 grid-rows-4">
+                {Object.entries(item)
+                  .filter(([key, value]) =>
+                  key !== 'region' && key !== 'plant' && key !== 'technology'
+                  )
+                  .map(([key, value], innerIndex) => (
+                    <div key={innerIndex} className="bg-gray-200 w-11/12 h-24  inline-block m-4 py-2 rounded-lg">
+                      <div className="flex-col px-2">
+                        <div>
+                          <div className="flex flex-col w-4/5">
+                            <div className=' text-sm  font-bold px-2'>{ key}:</div>
+                            <div>
+                              <span className="p-2 text-md" style={{ wordBreak: 'break-all', overflowWrap: 'break-word', overflow: 'scroll' }}>
+                                {typeof value === 'object' ? JSON.stringify(value, null, 2) : value}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ))}
+            
+           
+            
+          </div>
+          
+      {loading && <div className='flex justify-center items-center py-8'>
+        <div className=' p-10 text-2xl font-medium bg-slate-300 rounded-xl  mt-6 animate-bounce w-4/5 text-center'>
+          Loading
+        </div>
+      </div>}
     </div>
   );
 }
