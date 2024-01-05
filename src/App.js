@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import EditedSvg from './EditedSvg';
-import NewContractsvg from './NewContractsvg';
-import UpdatedSvg from './UpdatedSvg';
+// import EditedSvg from './EditedSvg';
+// import NewContractsvg from './NewContractsvg';
+// import UpdatedSvg from './UpdatedSvg';
 
 function App() {
   const [regions, setRegions] = useState([]);
@@ -12,23 +12,27 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [collectionData, setCollectionData] = useState([]);
-  const [showGrid, setShowGrid] = useState(false);
+  // const [showGrid, setShowGrid] = useState(false);
+  const [showContractInfo, setShowContractInfo] = useState(false);
+  const [showhistoryInfo, setShowhistoryInfo] = useState(false);
 
+
+  const [contractInfoData, setContractInfoData] = useState([]);
 
 
   function formatTimestamp(timestampObject) {
     const milliseconds = Number(timestampObject._seconds) * 1000 + Number(timestampObject._nanoseconds) / 1e6;
     const dateObject = new Date(milliseconds);
-  
+
     // Format the date as DD-MM-YYYY
     const day = dateObject.getDate();
     const month = dateObject.getMonth() + 1; // Month is zero-based
     const year = dateObject.getFullYear();
-  
+
     const formattedDate = `${day}-${month}-${year}`;
     return formattedDate;
   }
-  
+
 
 
   useEffect(() => {
@@ -135,9 +139,13 @@ function App() {
         {collectionData.map((item, index) => (
           <div key={index} className='px-7 m-7 py-3 bg-slate-300 rounded-2xl mt-6 '>
             <div className='flex mr-2 '>
-              <div className='p-4 py-5 px-4 '>
-                {item.isActive === 'true' && (
-                  <div className="bg-green-500 p-6 text-white px-5 py-2 rounded-xl">Active</div>
+
+              <div className=' flex p-4 py-6 px-4 space-x-4'>
+                <strong className='py-2 px-2'>Region:</strong>
+                {item.region && (
+                  <div className="bg-blue-500 p-6 text-white px-4 py-2 rounded-xl">
+                    {item.plant.toUpperCase()}
+                  </div>
                 )}
               </div>
               <div className='flex justify-center w-screen items-center py-2 p-4'>
@@ -149,7 +157,7 @@ function App() {
               </div>
             </div>
 
-            <div key={index} className="grid grid-cols-4 grid-rows-4">
+            <div key={index} className="grid grid-cols-3 grid-rows-2">
               {Object.entries(item)
                 .filter(([key, value]) =>
                   key !== 'region'
@@ -159,34 +167,144 @@ function App() {
                   && key !== 'updateHistory'
                   && key !== 'contractName'
                   && key !== 'isActive'
-
+                  && key !== 'contractInfo'
                 )
                 .map(([key, value], innerIndex) => (
-                  <div key={innerIndex} className="bg-gray-200 w-11/12 h-24  inline-block m-4 py-2 rounded-lg">
+                  <div key={innerIndex} className="bg-gray-200 w-11/12 h-24 inline-block m-4 py-2 rounded-lg">
                     <div className="flex-col px-2">
                       <div>
                         <div className="flex flex-col w-4/5">
-                          <div className=' text-sm  font-bold px-2'>{key}:</div>
+                          <div className=' text-sm font-bold px-2'>{key}:</div>
                           <div>
                             <span className="p-2 text-md" style={{ wordBreak: 'break-all', overflowWrap: 'break-word', overflow: 'scroll' }}>
                               {key === 'contractStartDate' || key === 'contractEndDate' ? (
                                 <span>{formatTimestamp(value)}</span>
                               ) : (
-                                <span>{JSON.stringify(value)}</span>
+                                <span>
+                                  {key === 'contractInfo' && typeof value === 'object' ? (
+                                    setContractInfoData(Object.entries(value))
+                                  ) : (
+                                    <span>{JSON.stringify(value)}</span>
+                                  )}
+                                </span>
                               )}
-
                             </span>
+
+
+
                           </div>
                         </div>
+
                       </div>
 
                     </div>
 
+                  </div>
+                ))}
+
+            </div>
+            <div className='flex space-x-5 px-4 py-4'>
+              <button
+                className='text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-7 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                onClick={() => setShowContractInfo(!showContractInfo)}
+              >
+                Contract Info
+              </button>
+              <button
+                className='text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-7 py-2.5 text-center mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                onClick={() => setShowhistoryInfo(!showhistoryInfo)}
+              >
+                Timeline
+              </button>
+            </div>
+
+            {showContractInfo && (
+              <div key={index} className="">
+                {Object.entries(item)
+                  .filter(([key, value]) =>
+                    key === 'contractInfo' && typeof value === 'object'
+                  )
+                  .map(([key, value], innerIndex) => (
+                    <div key={innerIndex} className="">
+                      <div className="">
+                        <div>
+                          <div className="">
+                            <div className='py-4 '>
+                              <span className="  grid grid-cols-2 grid-rows-3 text-md" style={{ wordBreak: 'break-all', overflowWrap: 'break-word', overflow: 'hidden' }}>
+                                <div key={index} className='px-5 bg-gray-200 w-3/5 inline-block m-4  rounded-lg'>
+                                <div className='mt-1'>Contract Status:</div>
+
+                                  {item.isActive === 'true' ? (
+                                    <div className="py-1 font-medium">Active</div>
+                                  ) : item.isActive === 'false' ? (
+                                    <div>Not active</div>
+                                  ) : null}
+                                </div>
 
 
+                                {Object.entries(value).map(([subKey, subValue], subIndex) => (
+                                  <div key={subIndex} className='px-5 mt-2 py-1 bg-gray-200 w-3/5 inline-block m-4  rounded-lg'>
+                                    {subKey === 'contractStartDate' || subKey === 'contractEndDate' ? (
+                                      <span>{subKey}:<p className='font-medium'>{formatTimestamp(subValue)}</p></span>
+                                    ) : (
+                                      <div className='text-md'>
+                                        {subKey}:
+                                        <p className='font-medium'>
+                                          {subValue}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+            {/*userhistory part starts */}
+          {showhistoryInfo&&(
+              <div key={index} className="">
+              {Object.entries(item)
+                .filter(([key, value]) =>
+                  key === 'userHistory' && typeof value === 'object'
+                )
+                .map(([key, value], innerIndex) => (
+                  <div key={innerIndex} className="">
+                    <div className="">
+                      <div>
+                        <div className="">
+                          <div className='py-4 '>
+                            <span className="  grid grid-cols-2 grid-rows-3 text-md" style={{ wordBreak: 'break-all', overflowWrap: 'break-word', overflow: 'hidden' }}>
+                              
+
+                              {Object.entries(value).map(([subKey, subValue], subIndex) => (
+                                <div key={subIndex} className='px-5 mt-2 py-1 bg-gray-200 w-3/5 inline-block m-4  rounded-lg'>
+                                  {subKey === 'timestamp'  ? (
+                                    <span>{subKey}:<p className='font-medium'>{formatTimestamp(subValue)}</p></span>
+                                  ) : (
+                                    <div className='text-md'>
+                                      {subKey}:
+                                      <p className='font-medium'>
+                                        {subValue}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
             </div>
+          )}
+
+
+
 
           </div>
         ))}
