@@ -139,7 +139,6 @@ function App() {
       {collectionData.map((item, index) => (
         <div key={index} className='px-7 m-7 py-3 bg-slate-300 rounded-2xl mt-6 '>
           <div className='flex py-4 px-2'>
-            <strong className='py-2 px-2'>Plant:</strong>
             {item.region && (
               <div className="bg-blue-500 w-min p-6 text-white px-4 py-2 rounded-xl">
                 {item.plant.toUpperCase()}
@@ -187,8 +186,8 @@ function App() {
 
           {/* Rendering for each contract in the contractName array */}
           {item.contractName.map((contract, contractIndex) => (
-            <div key={contractIndex}>
-              <strong className=' px-2'>Contract : {contractIndex} :</strong>
+            <div key={contractIndex} className='px-4 py-2'>
+              <strong className=' px-2 text-lg'>Contract  {contractIndex}: </strong>
 
               <div className='py-2'>
                 <div className=''>
